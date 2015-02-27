@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<!--block content -->
+<div class="row">
+  <div class="col-md-8">
+    {% block chart %}
+    {% endblock chart %}
+  </div>
+  <div class="col-md-4">
+    {% block form-input %}
+    {% endblock form-input %}
+  </div>
+</div>
+<!-- endblock content -->
+{% endblock content %}
+
+
+
+{% block scripts %}
+<script src="{% static 'chartapp/Chart.min.js' %}"></script>
+<script src="{% static 'chartapp/capsule.js' %}"></script>
+{% endblock scripts %}

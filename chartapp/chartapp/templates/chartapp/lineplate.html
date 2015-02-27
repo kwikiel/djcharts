@@ -1,0 +1,61 @@
+{% extends 'chartapp/base.html' %}
+{% load bootstrap %}
+
+
+{% block chart %}
+<h1>{{ line_data.name }}</h1>
+<canvas id="{{line_data.id}}" width="1000" height="400"></canvas>
+{% endblock chart %}
+
+
+{% block form-input %}
+<form role="form" method="POST" action="">
+  {% csrf_token %}
+  {{ form |bootstrap }}
+  <button type="submit" class="btn btn-primary">submit</button>
+</form>
+{% endblock form-input%}
+
+
+{% block scripts %}
+{{ block.super }}
+<script>
+(function($){
+  'use strict';
+  
+  var options = {responsive:true},
+      ctx = document.getElementById("{{line_data.id}}").getContext("2d"),
+      data = {
+        labels:[{% for field in line_data.fields %} {{ field.xfield }}, {%endfor%}],        datasets:[
+          {
+            label:"{{ line_data.name }}",
+            {% for key,color in line_data.colors.items %}
+            {{ key }}:"{{ color }}",
+            {% endfor %}
+            data:[{% for field in line_data.fields %} {{ field.yfield }}, {%endfor%}],
+          }
+        ]
+      };
+      
+  // resize to current window
+  var width = $('canvas').parent().width();
+  $('canvas').attr({width:width});
+    
+  var linechart = new Chart(ctx).Line(data,options);
+  
+  // create legend 
+  var helpers = Chart.helpers,
+      title = document.createElement('h1'),
+      textnode = document.createTextNode('Legend');
+  title.appendChild(textnode);
+  
+  var legendHolder = document.createElement('div');
+  legendHolder.innerHTML = linechart.generateLegend();
+  
+   var parent = document.getElementById("{{line_data.id}}").parentNode
+   parent.appendChild(title);
+   parent.appendChild(legendHolder.firstChild); 
+})(jQuery);
+  </script>
+{% endblock scripts%}
+

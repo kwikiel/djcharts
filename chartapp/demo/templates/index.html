@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="row">
+
+  <div class="col-sm-6 full-height">
+    <a href="{% url 'line_view' %}" class="btn btn-primary full">
+      <div class="middle">
+        <i class='box fa fa-5x fa-line-chart'></i>
+        <span class="box big-font">Line Chart</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-sm-6 full-height">
+    <a href="{% url 'donut_view' %}" class="btn btn-primary full">
+      <div class="middle">
+        <i class='box fa fa-5x fa-pie-chart'></i>
+        <span class="box big-font">Pie Chart</span>
+      </div>
+    </a>
+  </div>
+
+</div>
+{% endblock content %}

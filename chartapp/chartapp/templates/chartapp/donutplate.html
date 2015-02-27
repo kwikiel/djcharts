@@ -1,0 +1,73 @@
+{% extends 'chartapp/base.html' %}
+{% load bootstrap staticfiles %}
+
+
+{% block chart %}
+<h1>{{ donut_data.name }}</h1>
+<canvas id="{{donut_data.id}}" width="1000" height="400"></canvas>
+{% endblock chart %}
+
+
+{% block form-input %}
+<form role="form" method="POST" action="">
+  {% csrf_token %}
+  {{ form |bootstrap }}
+  <button type="submit" class="btn btn-primary">submit</button>
+</form>
+{% endblock form-input%}
+
+
+{% block scripts %}
+{{ block.super }}
+<script>
+(function($){
+  'use strict';
+  
+  var options = {responsive:true,
+    
+                 legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){ %><li><span style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){ %><%=segments[i].label%> - <%=segments[i].value%><% }%></li><% }%></ul>"
+                },
+      ctx = document.getElementById("{{donut_data.id}}").getContext("2d"),
+      data = [{% for field in donut_data.fields%} 
+                { value : {{ field.value }},
+                  color : "{{ field.color }}",
+                  label : "{{ field.label }}"
+                },
+              {%endfor%}];
+      
+  // resize to current window
+  var width = $('canvas').parent().width();
+  $('canvas').attr({width:width});
+  
+  var donutchart = new Chart(ctx).Doughnut(data,options);
+  
+  // create legend 
+  var helpers = Chart.helpers;
+  var title = document.createElement('h1');
+  var textnode = document.createTextNode('Legend');
+  title.appendChild(textnode);
+  
+  var legendHolder = document.createElement('div');
+  legendHolder.innerHTML = donutchart.generateLegend();
+  // Include a html legend template after the module doughnut itself
+  helpers.each(legendHolder.firstChild.childNodes, function(legendNode, index){
+    helpers.addEvent(legendNode, 'mouseover', function(){
+      var activeSegment = donutchart.segments[index];
+      activeSegment.save();
+      activeSegment.fillColor = activeSegment.highlightColor;
+      donutchart.showTooltip([activeSegment]);
+      activeSegment.restore();
+    });
+  });
+  helpers.addEvent(legendHolder.firstChild, 'mouseout', function(){
+  donutchart.draw();
+  });
+  
+  var parent = document.getElementById("{{donut_data.id}}").parentNode
+  parent.appendChild(title);
+  parent.appendChild(legendHolder.firstChild); 
+    
+})(jQuery);
+  </script>
+{% endblock scripts%}
+
